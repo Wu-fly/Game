@@ -1,0 +1,1201 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>太空射击游戏 - 无尽模式</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0a0a1a;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    min-height: 100vh;
+    overflow: hidden;
+  }
+  
+  .game-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 20px;
+  }
+  
+  .game-header {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 800px;
+    margin-bottom: 15px;
+    padding: 15px 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    backdrop-filter: blur(10px);
+  }
+  
+  .game-title {
+    color: #00ffff;
+    font-size: 24px;
+    font-weight: bold;
+    text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+  }
+  
+  .game-score {
+    display: flex;
+    gap: 25px;
+    color: white;
+    font-size: 16px;
+  }
+  
+  .score-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .score-value {
+    color: #00ff00;
+    font-weight: bold;
+  }
+  
+  .distance-value {
+    color: #ffaa00;
+    font-weight: bold;
+  }
+  
+  .game-canvas {
+    border: 2px solid #00ffff;
+    border-radius: 5px;
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+    background: #000;
+  }
+  
+  .game-controls {
+    margin-top: 15px;
+    display: flex;
+    gap: 15px;
+  }
+  
+  .btn {
+    padding: 10px 25px;
+    border: none;
+    border-radius: 25px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  
+  .btn-primary {
+    background: linear-gradient(90deg, #00ffff, #0080ff);
+    color: white;
+  }
+  
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 255, 255, 0.4);
+  }
+  
+  .btn-secondary {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
+  
+  .btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+  
+  .game-info {
+    margin-top: 15px;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 14px;
+    text-align: center;
+  }
+  
+  .nav-links {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+  }
+  
+  .nav-links a {
+    color: #00ffff;
+    text-decoration: none;
+    padding: 10px 20px;
+    background: rgba(0, 255, 255, 0.1);
+    border-radius: 25px;
+    border: 1px solid rgba(0, 255, 255, 0.3);
+    transition: all 0.2s;
+  }
+  
+  .nav-links a:hover {
+    background: rgba(0, 255, 255, 0.2);
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+  }
+  
+  .game-over-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.9);
+    padding: 40px 60px;
+    border-radius: 20px;
+    text-align: center;
+    border: 2px solid #ff4444;
+    box-shadow: 0 0 30px rgba(255, 68, 68, 0.5);
+    z-index: 100;
+  }
+  
+  .game-over-title {
+    color: #ff4444;
+    font-size: 36px;
+    font-weight: bold;
+    margin-bottom: 20px;
+  }
+  
+  .game-over-stats {
+    color: white;
+    font-size: 18px;
+    margin-bottom: 10px;
+  }
+  
+  .final-value {
+    color: #00ff00;
+    font-size: 24px;
+    font-weight: bold;
+  }
+  
+  .boss-warning {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #ff4444;
+    font-size: 48px;
+    font-weight: bold;
+    text-shadow: 0 0 20px rgba(255, 68, 68, 0.8);
+    animation: blink 0.5s ease-in-out infinite;
+    z-index: 50;
+  }
+  
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+  
+  .powerup-indicator {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    gap: 10px;
+  }
+  
+  .powerup-badge {
+    padding: 5px 10px;
+    background: rgba(0, 0, 0, 0.8);
+    border-radius: 5px;
+    color: white;
+    font-size: 12px;
+    border: 1px solid;
+  }
+</style>
+</head>
+<body>
+  <div class="nav-links">
+    <a href="index.html">🎮 返回主页面</a>
+  </div>
+  
+  <div class="powerup-indicator" id="powerupIndicator"></div>
+  
+  <div class="game-container">
+    <div class="game-header">
+      <div class="game-title">🚀 太空射击</div>
+      <div class="game-score">
+        <div class="score-item">
+          <span>得分:</span>
+          <span class="score-value" id="score">0</span>
+        </div>
+        <div class="score-item">
+          <span>生命:</span>
+          <span class="score-value" id="lives">3</span>
+        </div>
+        <div class="score-item">
+          <span>距离:</span>
+          <span class="distance-value" id="distance">0</span> km
+        </div>
+        <div class="score-item">
+          <span>Boss:</span>
+          <span class="score-value" id="bossHealth">0%</span>
+        </div>
+      </div>
+    </div>
+    
+    <canvas id="gameCanvas" class="game-canvas" width="800" height="600"></canvas>
+    
+    <div class="game-controls">
+      <button class="btn btn-primary" onclick="startGame()">开始游戏</button>
+      <button class="btn btn-secondary" onclick="resetGame()">重置游戏</button>
+    </div>
+    
+    <div class="game-info">
+      <p>⬆️⬇️⬅️➡️ 或 WASD 移动 | 空格键 发射子弹 | P 暂停</p>
+    </div>
+  </div>
+
+<script>
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+
+const WIDTH = canvas.width;
+const HEIGHT = canvas.height;
+
+let player = {
+  x: WIDTH / 2,
+  y: HEIGHT - 60,
+  width: 40,
+  height: 50,
+  speed: 6,
+  lives: 3,
+  invincible: false,
+  invincibleTimer: 0,
+  powerups: {
+    speed: 0,
+    shield: 0,
+    rapidFire: 0,
+    spreadShot: 0,
+    bomb: 3
+  }
+};
+
+let bullets = [];
+let enemyBullets = [];
+let enemies = [];
+let powerups = [];
+let particles = [];
+let stars = [];
+let bombs = [];
+
+let score = 0;
+let distance = 0;
+let gameRunning = false;
+let gamePaused = false;
+let lastTime = 0;
+let enemySpawnTimer = 0;
+let shootTimer = 0;
+let bossActive = false;
+let boss = null;
+let bossWarning = false;
+let bossWarningTimer = 0;
+let lastBossDistance = -10;
+
+const keys = {};
+
+function initStars() {
+  stars = [];
+  for (let i = 0; i < 150; i++) {
+    stars.push({
+      x: Math.random() * WIDTH,
+      y: Math.random() * HEIGHT,
+      size: Math.random() * 2 + 0.5,
+      speed: Math.random() * 3 + 0.5,
+      twinkle: Math.random() * Math.PI * 2
+    });
+  }
+}
+
+function drawStars() {
+  stars.forEach(star => {
+    const alpha = 0.5 + Math.sin(Date.now() * 0.001 + star.twinkle) * 0.3;
+    ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+    ctx.beginPath();
+    ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+    ctx.fill();
+    star.y += star.speed;
+    if (star.y > HEIGHT) {
+      star.y = 0;
+      star.x = Math.random() * WIDTH;
+    }
+  });
+}
+
+function drawPlayer() {
+  ctx.save();
+  
+  if (player.invincible && Math.floor(player.invincibleTimer / 5) % 2 === 0) {
+    ctx.globalAlpha = 0.5;
+  }
+  
+  ctx.fillStyle = '#00ffff';
+  ctx.shadowColor = '#00ffff';
+  ctx.shadowBlur = 10;
+  ctx.beginPath();
+  ctx.moveTo(player.x, player.y);
+  ctx.lineTo(player.x - player.width / 2, player.y + player.height);
+  ctx.lineTo(player.x + player.width / 2, player.y + player.height);
+  ctx.closePath();
+  ctx.fill();
+  
+  ctx.fillStyle = '#0080ff';
+  ctx.beginPath();
+  ctx.moveTo(player.x, player.y + 10);
+  ctx.lineTo(player.x - player.width / 3, player.y + player.height - 5);
+  ctx.lineTo(player.x + player.width / 3, player.y + player.height - 5);
+  ctx.closePath();
+  ctx.fill();
+  
+  ctx.fillStyle = '#ffffff';
+  ctx.beginPath();
+  ctx.arc(player.x - 8, player.y + 15, 4, 0, Math.PI * 2);
+  ctx.arc(player.x + 8, player.y + 15, 4, 0, Math.PI * 2);
+  ctx.fill();
+  
+  if (player.powerups.shield > 0) {
+    ctx.strokeStyle = '#9b59b6';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.arc(player.x, player.y + player.height / 2, player.width / 2 + 10, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+  
+  ctx.shadowBlur = 0;
+  ctx.restore();
+}
+
+function drawBullet(bullet) {
+  ctx.fillStyle = bullet.color || '#00ff00';
+  ctx.shadowColor = bullet.color || '#00ff00';
+  ctx.shadowBlur = 8;
+  ctx.fillRect(bullet.x, bullet.y, bullet.width, bullet.height);
+  ctx.shadowBlur = 0;
+}
+
+function drawBomb(bomb) {
+  ctx.save();
+  
+  const pulse = Math.sin(Date.now() * 0.01) * 0.3 + 0.7;
+  
+  ctx.shadowColor = '#ffff00';
+  ctx.shadowBlur = 15;
+  
+  ctx.fillStyle = '#ff6600';
+  ctx.beginPath();
+  ctx.arc(bomb.x, bomb.y, 15 * pulse, 0, Math.PI * 2);
+  ctx.fill();
+  
+  ctx.fillStyle = '#ff0000';
+  ctx.beginPath();
+  ctx.arc(bomb.x, bomb.y, 10 * pulse, 0, Math.PI * 2);
+  ctx.fill();
+  
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 12px Arial';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('💣', bomb.x, bomb.y);
+  
+  ctx.fillStyle = 'rgba(255, 255, 0, 0.3)';
+  for (let i = 1; i <= 3; i++) {
+    ctx.beginPath();
+    ctx.arc(bomb.x, bomb.y, 15 + i * 5, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  
+  ctx.restore();
+}
+
+function drawEnemy(enemy) {
+  ctx.save();
+  ctx.shadowColor = enemy.color;
+  ctx.shadowBlur = 5;
+  
+  ctx.fillStyle = enemy.color;
+  
+  if (enemy.type === 'shooter') {
+    ctx.beginPath();
+    ctx.moveTo(enemy.x, enemy.y);
+    ctx.lineTo(enemy.x - enemy.width / 2, enemy.y + enemy.height);
+    ctx.lineTo(enemy.x + enemy.width / 2, enemy.y + enemy.height);
+    ctx.lineTo(enemy.x, enemy.y + enemy.height / 2);
+    ctx.closePath();
+    ctx.fill();
+    
+    ctx.fillStyle = '#ff4444';
+    ctx.beginPath();
+    ctx.arc(enemy.x - 6, enemy.y + enemy.height / 2, 3, 0, Math.PI * 2);
+    ctx.arc(enemy.x + 6, enemy.y + enemy.height / 2, 3, 0, Math.PI * 2);
+    ctx.fill();
+  } else if (enemy.type === 'fast') {
+    ctx.beginPath();
+    ctx.arc(enemy.x, enemy.y + enemy.height / 2, enemy.width / 2, 0, Math.PI * 2);
+    ctx.fill();
+    
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath();
+    ctx.arc(enemy.x - 5, enemy.y + enemy.height / 2, 3, 0, Math.PI * 2);
+    ctx.arc(enemy.x + 5, enemy.y + enemy.height / 2, 3, 0, Math.PI * 2);
+    ctx.fill();
+  } else if (enemy.type === 'tank') {
+    ctx.fillRect(enemy.x - enemy.width / 2, enemy.y, enemy.width, enemy.height);
+    
+    ctx.fillStyle = '#333';
+    ctx.fillRect(enemy.x - enemy.width / 2 + 5, enemy.y + 5, enemy.width - 10, enemy.height - 10);
+    
+    ctx.fillStyle = '#ff4444';
+    ctx.beginPath();
+    ctx.arc(enemy.x - 8, enemy.y + enemy.height / 2, 4, 0, Math.PI * 2);
+    ctx.arc(enemy.x + 8, enemy.y + enemy.height / 2, 4, 0, Math.PI * 2);
+    ctx.fill();
+  } else {
+    ctx.beginPath();
+    ctx.moveTo(enemy.x, enemy.y + enemy.height);
+    ctx.lineTo(enemy.x - enemy.width / 2, enemy.y);
+    ctx.lineTo(enemy.x + enemy.width / 2, enemy.y);
+    ctx.closePath();
+    ctx.fill();
+    
+    ctx.fillStyle = '#ff4444';
+    ctx.beginPath();
+    ctx.arc(enemy.x - 5, enemy.y + 10, 3, 0, Math.PI * 2);
+    ctx.arc(enemy.x + 5, enemy.y + 10, 3, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  
+  ctx.shadowBlur = 0;
+  ctx.restore();
+}
+
+function drawBoss() {
+  if (!boss || !boss.active) return;
+  
+  ctx.save();
+  ctx.shadowColor = '#ff4444';
+  ctx.shadowBlur = 20;
+  
+  ctx.fillStyle = '#8b0000';
+  ctx.beginPath();
+  ctx.moveTo(boss.x, boss.y);
+  ctx.lineTo(boss.x - boss.width / 2, boss.y + boss.height * 0.3);
+  ctx.lineTo(boss.x - boss.width / 2, boss.y + boss.height);
+  ctx.lineTo(boss.x + boss.width / 2, boss.y + boss.height);
+  ctx.lineTo(boss.x + boss.width / 2, boss.y + boss.height * 0.3);
+  ctx.closePath();
+  ctx.fill();
+  
+  ctx.fillStyle = '#ff0000';
+  ctx.beginPath();
+  ctx.moveTo(boss.x, boss.y + 20);
+  ctx.lineTo(boss.x - boss.width / 3, boss.y + boss.height * 0.4);
+  ctx.lineTo(boss.x + boss.width / 3, boss.y + boss.height * 0.4);
+  ctx.closePath();
+  ctx.fill();
+  
+  ctx.fillStyle = '#ff4444';
+  ctx.beginPath();
+  ctx.arc(boss.x - 20, boss.y + boss.height / 2, 10, 0, Math.PI * 2);
+  ctx.arc(boss.x + 20, boss.y + boss.height / 2, 10, 0, Math.PI * 2);
+  ctx.fill();
+  
+  ctx.fillStyle = '#ffffff';
+  ctx.beginPath();
+  ctx.arc(boss.x - 20, boss.y + boss.height / 2, 5, 0, Math.PI * 2);
+  ctx.arc(boss.x + 20, boss.y + boss.height / 2, 5, 0, Math.PI * 2);
+  ctx.fill();
+  
+  ctx.fillStyle = '#ff6600';
+  ctx.fillRect(boss.x - boss.width / 2 - 15, boss.y + boss.height * 0.3, 15, 40);
+  ctx.fillRect(boss.x + boss.width / 2, boss.y + boss.height * 0.3, 15, 40);
+  
+  ctx.shadowBlur = 0;
+  ctx.restore();
+  
+  ctx.fillStyle = '#333';
+  ctx.fillRect(boss.x - boss.width / 2, boss.y - 15, boss.width, 10);
+  
+  const healthPercent = (boss.health / boss.maxHealth) * 100;
+  ctx.fillStyle = healthPercent > 50 ? '#00ff00' : healthPercent > 25 ? '#ffaa00' : '#ff4444';
+  ctx.fillRect(boss.x - boss.width / 2, boss.y - 15, boss.width * (boss.health / boss.maxHealth), 10);
+}
+
+function drawPowerup(powerup) {
+  ctx.save();
+  ctx.fillStyle = powerup.color;
+  ctx.shadowColor = powerup.color;
+  ctx.shadowBlur = 10;
+  ctx.beginPath();
+  ctx.arc(powerup.x, powerup.y, powerup.size, 0, Math.PI * 2);
+  ctx.fill();
+  
+  ctx.fillStyle = 'white';
+  ctx.font = `bold ${powerup.size * 0.8}px Arial`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(powerup.icon, powerup.x, powerup.y);
+  ctx.shadowBlur = 0;
+  ctx.restore();
+}
+
+function createParticle(x, y, color, count = 10) {
+  for (let i = 0; i < count; i++) {
+    particles.push({
+      x: x,
+      y: y,
+      vx: (Math.random() - 0.5) * 10,
+      vy: (Math.random() - 0.5) * 10,
+      life: 40,
+      color: color,
+      size: Math.random() * 4 + 2
+    });
+  }
+}
+
+function drawParticles() {
+  particles.forEach((p, index) => {
+    ctx.fillStyle = p.color;
+    ctx.globalAlpha = p.life / 40;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+    ctx.fill();
+    
+    p.x += p.vx;
+    p.y += p.vy;
+    p.life--;
+    
+    if (p.life <= 0) {
+      particles.splice(index, 1);
+    }
+  });
+  ctx.globalAlpha = 1;
+}
+
+function createEnemy() {
+  const distanceFactor = Math.floor(distance / 5);
+  const types = [
+    { type: 'basic', width: 30, height: 30, speed: 1.5 + distanceFactor * 0.1, color: '#ff6b6b', health: 1, score: 10, shootInterval: 0 },
+    { type: 'fast', width: 25, height: 25, speed: 3 + distanceFactor * 0.15, color: '#00ff88', health: 1, score: 15, shootInterval: 0 },
+    { type: 'shooter', width: 35, height: 40, speed: 1 + distanceFactor * 0.05, color: '#ffaa00', health: 2, score: 25, shootInterval: 120 },
+    { type: 'tank', width: 45, height: 50, speed: 0.8 + distanceFactor * 0.05, color: '#8888ff', health: 5, score: 50, shootInterval: 90 }
+  ];
+  
+  const maxType = Math.min(types.length, Math.floor(distanceFactor / 2) + 2);
+  const typeIndex = Math.floor(Math.random() * maxType);
+  const type = types[typeIndex];
+  
+  enemies.push({
+    x: Math.random() * (WIDTH - type.width) + type.width / 2,
+    y: -type.height,
+    ...type,
+    shootTimer: Math.floor(Math.random() * type.shootInterval),
+    moveDirection: Math.random() > 0.5 ? 1 : -1,
+    moveTimer: 0
+  });
+}
+
+function createBoss() {
+  if (bossActive || boss && boss.active) return;
+  
+  bossWarning = true;
+  bossWarningTimer = 180;
+  
+  setTimeout(() => {
+    const distanceFactor = Math.floor(distance / 5);
+    boss = {
+      x: WIDTH / 2,
+      y: -150,
+      width: 120,
+      height: 100,
+      speed: 2,
+      health: 50 + distanceFactor * 20,
+      maxHealth: 50 + distanceFactor * 20,
+      active: true,
+      moveDirection: 1,
+      shootTimer: 0,
+      phase: 1
+    };
+    bossActive = true;
+    bossWarning = false;
+  }, 3000);
+}
+
+function createPowerup(x, y) {
+  const powerupTypes = [
+    { type: 'life', color: '#ff4444', icon: '❤', chance: 0.08 },
+    { type: 'speed', color: '#ffaa00', icon: '⚡', chance: 0.1 },
+    { type: 'shield', color: '#9b59b6', icon: '🛡️', chance: 0.08 },
+    { type: 'rapidFire', color: '#00ff88', icon: '🔥', chance: 0.1 },
+    { type: 'spreadShot', color: '#aa00ff', icon: '✦', chance: 0.08 },
+    { type: 'bomb', color: '#ff00ff', icon: '💣', chance: 0.05 }
+  ];
+  
+  const roll = Math.random();
+  let cumulative = 0;
+  
+  for (const powerupType of powerupTypes) {
+    cumulative += powerupType.chance;
+    if (roll < cumulative) {
+      powerups.push({
+        x: x,
+        y: y,
+        size: 18,
+        speed: 1.5,
+        ...powerupType
+      });
+      break;
+    }
+  }
+}
+
+function shoot() {
+  const baseSpeed = player.powerups.rapidFire > 0 ? 15 : 10;
+  const bulletWidth = 6;
+  const bulletHeight = 15;
+  
+  if (player.powerups.spreadShot > 0) {
+    bullets.push(
+      { x: player.x - bulletWidth / 2, y: player.y - 10, width: bulletWidth, height: bulletHeight, speed: baseSpeed, color: '#00ff00' },
+      { x: player.x - bulletWidth / 2 - 15, y: player.y - 5, width: bulletWidth, height: bulletHeight, speed: baseSpeed, vx: -1, color: '#00ff88' },
+      { x: player.x - bulletWidth / 2 + 15, y: player.y - 5, width: bulletWidth, height: bulletHeight, speed: baseSpeed, vx: 1, color: '#00ff88' }
+    );
+  } else {
+    bullets.push({
+      x: player.x - bulletWidth / 2,
+      y: player.y - 10,
+      width: bulletWidth,
+      height: bulletHeight,
+      speed: baseSpeed,
+      color: '#00ff00'
+    });
+  }
+}
+
+function dropBomb() {
+  if (player.powerups.bomb <= 0) return;
+  
+  bombs.push({
+    x: player.x,
+    y: player.y,
+    radius: 80,
+    speed: 8,
+    timer: 45
+  });
+  player.powerups.bomb--;
+}
+
+function update() {
+  if (!gameRunning || gamePaused) return;
+  
+  const currentSpeed = player.powerups.speed > 0 ? player.speed * 1.5 : player.speed;
+  
+  if (keys['ArrowLeft'] || keys['a'] || keys['A']) {
+    player.x -= currentSpeed;
+  }
+  if (keys['ArrowRight'] || keys['d'] || keys['D']) {
+    player.x += currentSpeed;
+  }
+  if (keys['ArrowUp'] || keys['w'] || keys['W']) {
+    player.y -= currentSpeed;
+  }
+  if (keys['ArrowDown'] || keys['s'] || keys['S']) {
+    player.y += currentSpeed;
+  }
+  
+  player.x = Math.max(player.width / 2, Math.min(WIDTH - player.width / 2, player.x));
+  player.y = Math.max(player.height / 2, Math.min(HEIGHT - player.height, player.y));
+  
+  const fireRate = player.powerups.rapidFire > 0 ? 5 : 10;
+  shootTimer++;
+  if ((keys[' '] || keys['Space']) && shootTimer > fireRate) {
+    shoot();
+    shootTimer = 0;
+  }
+  
+  if (keys['b'] || keys['B']) {
+    dropBomb();
+    keys['b'] = false;
+    keys['B'] = false;
+  }
+  
+  bullets.forEach((bullet, index) => {
+    bullet.y -= bullet.speed;
+    if (bullet.vx) {
+      bullet.x += bullet.vx;
+    }
+    if (bullet.y < -bullet.height || bullet.x < 0 || bullet.x > WIDTH) {
+      bullets.splice(index, 1);
+    }
+  });
+  
+  enemyBullets.forEach((bullet, index) => {
+    bullet.y += bullet.speed;
+    if (bullet.vx) {
+      bullet.x += bullet.vx;
+    }
+    if (bullet.y > HEIGHT || bullet.x < 0 || bullet.x > WIDTH) {
+      enemyBullets.splice(index, 1);
+    }
+  });
+  
+  const distanceFactor = Math.floor(distance / 5);
+  const spawnInterval = Math.max(30, 90 - distanceFactor * 3);
+  
+  enemySpawnTimer++;
+  if (enemySpawnTimer > spawnInterval) {
+    const count = Math.min(3, Math.floor(distanceFactor / 5) + 1);
+    for (let i = 0; i < count; i++) {
+      createEnemy();
+    }
+    enemySpawnTimer = 0;
+  }
+  
+  const currentDistance = Math.floor(distance);
+  if (currentDistance >= 1 && currentDistance % 1 === 0 && currentDistance > lastBossDistance && !bossActive && !bossWarning) {
+    lastBossDistance = currentDistance;
+    createBoss();
+  }
+  
+  if (!bossActive && !bossWarning) {
+    distance += 0.001;
+    updateDistance();
+  }
+  
+  if (bossWarning) {
+    bossWarningTimer--;
+    if (bossWarningTimer <= 0) {
+      bossWarning = false;
+    }
+  }
+  
+  enemies.forEach((enemy, index) => {
+    enemy.y += enemy.speed;
+    
+    if (enemy.type === 'shooter' || enemy.type === 'tank') {
+      enemy.moveTimer++;
+      if (enemy.moveTimer > 60) {
+        enemy.moveDirection *= -1;
+        enemy.moveTimer = 0;
+      }
+      enemy.x += enemy.moveDirection * 0.5;
+      enemy.x = Math.max(enemy.width / 2, Math.min(WIDTH - enemy.width / 2, enemy.x));
+    }
+    
+    if (enemy.shootInterval > 0) {
+      enemy.shootTimer++;
+      if (enemy.shootTimer > enemy.shootInterval) {
+        const dx = player.x - enemy.x;
+        const dy = player.y - enemy.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        
+        enemyBullets.push({
+          x: enemy.x - 4,
+          y: enemy.y + enemy.height,
+          width: 8,
+          height: 8,
+          speed: 4,
+          vx: (dx / dist) * 2,
+          color: '#ff4444'
+        });
+        enemy.shootTimer = 0;
+      }
+    }
+    
+    if (enemy.y > HEIGHT) {
+      enemies.splice(index, 1);
+    }
+    
+    bullets.forEach((bullet, bIndex) => {
+      if (
+        bullet.x < enemy.x + enemy.width / 2 &&
+        bullet.x + bullet.width > enemy.x - enemy.width / 2 &&
+        bullet.y < enemy.y + enemy.height &&
+        bullet.y + bullet.height > enemy.y
+      ) {
+        bullets.splice(bIndex, 1);
+        enemy.health--;
+        
+        createParticle(bullet.x, bullet.y, '#00ff00', 5);
+        
+        if (enemy.health <= 0) {
+          enemies.splice(index, 1);
+          score += enemy.score;
+          updateScore();
+          createParticle(enemy.x, enemy.y, enemy.color, 15);
+          createPowerup(enemy.x, enemy.y);
+        }
+      }
+    });
+  });
+  
+  if (boss && boss.active) {
+    boss.y = boss.y < 50 ? boss.y + 1 : 50;
+    
+    const targetX = boss.x + boss.moveDirection * 3;
+    if (targetX < boss.width / 2 || targetX > WIDTH - boss.width / 2) {
+      boss.moveDirection *= -1;
+    }
+    boss.x += boss.moveDirection * 3;
+    
+    boss.shootTimer++;
+    const shootInterval = Math.max(45, 90 - Math.floor(distanceFactor / 2));
+    if (boss.shootTimer > shootInterval) {
+      const bulletCount = Math.max(3, Math.floor(distanceFactor / 10) + 3);
+      for (let i = 0; i < bulletCount; i++) {
+        const angle = (Math.PI * 2 / bulletCount) * i + boss.shootTimer * 0.05;
+        enemyBullets.push({
+          x: boss.x - 5,
+          y: boss.y + boss.height / 2,
+          width: 10,
+          height: 10,
+          speed: 5,
+          vx: Math.cos(angle) * 3,
+          vy: Math.sin(angle) * 3 + 2,
+          color: '#ff0000'
+        });
+      }
+      boss.shootTimer = 0;
+    }
+    
+    bullets.forEach((bullet, bIndex) => {
+      if (
+        bullet.x < boss.x + boss.width / 2 &&
+        bullet.x + bullet.width > boss.x - boss.width / 2 &&
+        bullet.y < boss.y + boss.height &&
+        bullet.y + bullet.height > boss.y
+      ) {
+        bullets.splice(bIndex, 1);
+        boss.health--;
+        updateBossHealth();
+        
+        createParticle(bullet.x, bullet.y, '#ff0000', 3);
+        
+        if (boss.health <= 0) {
+          boss.active = false;
+          bossActive = false;
+          score += 500 + distanceFactor * 100;
+          updateScore();
+          createParticle(boss.x, boss.y, '#ff0000', 50);
+          for (let i = 0; i < 3; i++) {
+            createPowerup(boss.x + (Math.random() - 0.5) * 100, boss.y + 50);
+          }
+        }
+      }
+    });
+  }
+  
+  bombs.forEach((bomb, index) => {
+    bomb.y -= bomb.speed;
+    bomb.timer--;
+    
+    if (bomb.y < -50) {
+      bombs.splice(index, 1);
+      return;
+    }
+    
+    if (bomb.timer <= 0) {
+      createParticle(bomb.x, bomb.y, '#ffff00', 30);
+      
+      enemies.forEach((enemy, eIndex) => {
+        const dx = enemy.x - bomb.x;
+        const dy = enemy.y - bomb.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < bomb.radius) {
+          score += enemy.score;
+          updateScore();
+          createParticle(enemy.x, enemy.y, enemy.color, 10);
+          enemies.splice(eIndex, 1);
+        }
+      });
+      
+      if (boss && boss.active) {
+        const dx = boss.x - bomb.x;
+        const dy = boss.y - bomb.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < bomb.radius) {
+          boss.health -= 20;
+          updateBossHealth();
+          if (boss.health <= 0) {
+            boss.active = false;
+            bossActive = false;
+            score += 500 + distanceFactor * 100;
+            updateScore();
+            createParticle(boss.x, boss.y, '#ff0000', 50);
+          }
+        }
+      }
+      
+      bombs.splice(index, 1);
+    }
+  });
+  
+  powerups.forEach((powerup, index) => {
+    powerup.y += powerup.speed;
+    
+    if (powerup.y > HEIGHT) {
+      powerups.splice(index, 1);
+    }
+    
+    if (
+      powerup.x < player.x + player.width / 2 &&
+      powerup.x + powerup.size > player.x - player.width / 2 &&
+      powerup.y < player.y + player.height &&
+      powerup.y + powerup.size > player.y
+    ) {
+      applyPowerup(powerup.type);
+      powerups.splice(index, 1);
+      createParticle(powerup.x, powerup.y, powerup.color, 8);
+    }
+  });
+  
+  enemyBullets.forEach((bullet, bIndex) => {
+    if (!player.invincible &&
+        bullet.x < player.x + player.width / 2 &&
+        bullet.x + bullet.width > player.x - player.width / 2 &&
+        bullet.y < player.y + player.height &&
+        bullet.y + bullet.height > player.y) {
+      enemyBullets.splice(bIndex, 1);
+      handlePlayerHit();
+    }
+  });
+  
+  enemies.forEach((enemy, index) => {
+    if (!player.invincible &&
+        enemy.x < player.x + player.width / 2 &&
+        enemy.x + enemy.width > player.x - player.width / 2 &&
+        enemy.y < player.y + player.height &&
+        enemy.y + enemy.height > player.y) {
+      enemies.splice(index, 1);
+      handlePlayerHit();
+    }
+  });
+  
+  if (player.invincible) {
+    player.invincibleTimer--;
+    if (player.invincibleTimer <= 0) {
+      player.invincible = false;
+    }
+  }
+  
+  updatePowerupIndicator();
+}
+
+function handlePlayerHit() {
+  if (player.powerups.shield > 0) {
+    player.powerups.shield--;
+    createParticle(player.x, player.y, '#9b59b6', 15);
+  } else {
+    player.lives--;
+    player.invincible = true;
+    player.invincibleTimer = 120;
+    createParticle(player.x, player.y, '#ff4444', 20);
+    updateLives();
+    
+    if (player.lives <= 0) {
+      gameOver();
+    }
+  }
+}
+
+function applyPowerup(type) {
+  switch (type) {
+    case 'life':
+      player.lives++;
+      updateLives();
+      break;
+    case 'speed':
+      player.powerups.speed = 1;
+      setTimeout(() => { player.powerups.speed = 0; }, 8000);
+      break;
+    case 'shield':
+      player.powerups.shield++;
+      break;
+    case 'rapidFire':
+      player.powerups.rapidFire = 1;
+      setTimeout(() => { player.powerups.rapidFire = 0; }, 10000);
+      break;
+    case 'spreadShot':
+      player.powerups.spreadShot = 1;
+      setTimeout(() => { player.powerups.spreadShot = 0; }, 8000);
+      break;
+    case 'bomb':
+      player.powerups.bomb++;
+      break;
+  }
+}
+
+function updatePowerupIndicator() {
+  const indicator = document.getElementById('powerupIndicator');
+  let html = '';
+  
+  if (player.powerups.speed > 0) html += '<div class="powerup-badge" style="border-color: #ffaa00">⚡ 加速</div>';
+  if (player.powerups.shield > 0) html += `<div class="powerup-badge" style="border-color: #9b59b6">🛡️ x${player.powerups.shield}</div>`;
+  if (player.powerups.rapidFire > 0) html += '<div class="powerup-badge" style="border-color: #00ff88">🔥 快射</div>';
+  if (player.powerups.spreadShot > 0) html += '<div class="powerup-badge" style="border-color: #aa00ff">✦ 散弹</div>';
+  if (player.powerups.bomb > 0) html += `<div class="powerup-badge" style="border-color: #ff00ff">💣 x${player.powerups.bomb}</div>`;
+  
+  indicator.innerHTML = html;
+}
+
+function draw() {
+  ctx.fillStyle = '#0a0a1a';
+  ctx.fillRect(0, 0, WIDTH, HEIGHT);
+  
+  drawStars();
+  drawParticles();
+  
+  bullets.forEach(drawBullet);
+  enemyBullets.forEach(drawBullet);
+  bombs.forEach(drawBomb);
+  enemies.forEach(drawEnemy);
+  powerups.forEach(drawPowerup);
+  
+  if (boss) {
+    drawBoss();
+  }
+  
+  if (gameRunning) {
+    drawPlayer();
+  }
+  
+  if (bossWarning) {
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+    ctx.fillRect(0, 0, WIDTH, HEIGHT);
+    ctx.fillStyle = '#ff4444';
+    ctx.font = 'bold 48px Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('⚠️ BOSS 来袭！', WIDTH / 2, HEIGHT / 2);
+  }
+  
+  if (gamePaused && gameRunning) {
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+    ctx.fillRect(0, 0, WIDTH, HEIGHT);
+    ctx.fillStyle = 'white';
+    ctx.font = 'bold 36px Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('游戏暂停', WIDTH / 2, HEIGHT / 2);
+    ctx.font = '18px Arial';
+    ctx.fillText('按 P 键继续 | B 键释放炸弹', WIDTH / 2, HEIGHT / 2 + 40);
+  }
+  
+  requestAnimationFrame(draw);
+}
+
+function updateScore() {
+  document.getElementById('score').textContent = score;
+}
+
+function updateLives() {
+  document.getElementById('lives').textContent = player.lives;
+}
+
+function updateDistance() {
+  document.getElementById('distance').textContent = distance.toFixed(1);
+}
+
+function updateBossHealth() {
+  const percent = boss ? Math.round((boss.health / boss.maxHealth) * 100) : 0;
+  document.getElementById('bossHealth').textContent = `${percent}%`;
+}
+
+function startGame() {
+  player = {
+    x: WIDTH / 2,
+    y: HEIGHT - 60,
+    width: 40,
+    height: 50,
+    speed: 6,
+    lives: 3,
+    invincible: false,
+    invincibleTimer: 0,
+    powerups: {
+      speed: 0,
+      shield: 0,
+      rapidFire: 0,
+      spreadShot: 0,
+      bomb: 3
+    }
+  };
+  
+  bullets = [];
+  enemyBullets = [];
+  enemies = [];
+  powerups = [];
+  particles = [];
+  bombs = [];
+  
+  score = 0;
+  distance = 0;
+  gameRunning = true;
+  gamePaused = false;
+  enemySpawnTimer = 0;
+  shootTimer = 0;
+  bossActive = false;
+  boss = null;
+  bossWarning = false;
+  lastBossDistance = -10;
+  
+  updateScore();
+  updateLives();
+  updateDistance();
+  updateBossHealth();
+  updatePowerupIndicator();
+}
+
+function resetGame() {
+  startGame();
+}
+
+function gameOver() {
+  gameRunning = false;
+  
+  const overlay = document.createElement('div');
+  overlay.className = 'game-over-overlay';
+  overlay.innerHTML = `
+    <div class="game-over-title">💥 游戏结束</div>
+    <div class="game-over-stats">最终得分: <span class="final-value">${score}</span></div>
+    <div class="game-over-stats">飞行距离: <span class="final-value">${distance.toFixed(1)} km</span></div>
+    <div style="margin-top: 25px;">
+      <button class="btn btn-primary" onclick="restartAfterGameOver()">再来一局</button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+}
+
+function restartAfterGameOver() {
+  document.querySelector('.game-over-overlay').remove();
+  startGame();
+}
+
+document.addEventListener('keydown', (e) => {
+  keys[e.key] = true;
+  
+  if (e.key === 'p' || e.key === 'P') {
+    if (gameRunning) {
+      gamePaused = !gamePaused;
+    }
+  }
+  
+  if (e.key === ' ') {
+    e.preventDefault();
+  }
+});
+
+document.addEventListener('keyup', (e) => {
+  keys[e.key] = false;
+});
+
+function gameLoop(timestamp) {
+  update();
+  lastTime = timestamp;
+  requestAnimationFrame(gameLoop);
+}
+
+initStars();
+draw();
+gameLoop(0);
+</script>
+</body>
+</html>
