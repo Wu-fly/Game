@@ -1,0 +1,1148 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>淘宝 - 智能耳机 数码配件</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #f5f5f5;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+    min-height: 100vh;
+  }
+  
+  .taobao-header {
+    background: linear-gradient(90deg, #ff6b00, #ff9000);
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .taobao-logo {
+    color: white;
+    font-size: 28px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .taobao-search {
+    flex: 1;
+    max-width: 700px;
+    margin: 0 20px;
+    display: flex;
+  }
+  .taobao-search input {
+    flex: 1;
+    padding: 12px 15px;
+    border-radius: 25px 0 0 25px;
+    border: none;
+    outline: none;
+    font-size: 14px;
+  }
+  .taobao-search button {
+    background: #ff4400;
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 0 25px 25px 0;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+  }
+  .taobao-nav {
+    display: flex;
+    gap: 25px;
+    color: white;
+    font-size: 14px;
+  }
+  .taobao-nav span {
+    cursor: pointer;
+    padding: 5px 10px;
+    border-radius: 15px;
+    transition: background 0.2s;
+  }
+  .taobao-nav span:hover {
+    background: rgba(255,255,255,0.2);
+  }
+  
+  .breadcrumb {
+    padding: 12px 20px;
+    background: white;
+    font-size: 13px;
+    color: #666;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  .breadcrumb a {
+    color: #666;
+    text-decoration: none;
+  }
+  .breadcrumb a:hover {
+    color: #ff6b00;
+  }
+  
+  .product-grid {
+    max-width: 1400px;
+    margin: 20px auto;
+    padding: 0 20px;
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 15px;
+  }
+  
+  .product-card {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+  }
+  .product-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  }
+  .product-image {
+    aspect-ratio: 1;
+    background: #f8f9fa;
+    position: relative;
+    overflow: hidden;
+  }
+  .product-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .product-image .game-container {
+    width: 100%;
+    height: 100%;
+    background: #2c3e50;
+    position: relative;
+    overflow: hidden;
+  }
+  .product-image .game-canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+  .product-image .game-cover {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: opacity 0.3s ease;
+    z-index: 10;
+  }
+  .product-image .game-container:hover .game-cover {
+    opacity: 0;
+    pointer-events: none;
+  }
+  .product-image .hot-tag {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    background: #ff4400;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+  .product-image .free-tag {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: #ff6b00;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+  .product-info {
+    padding: 10px;
+  }
+  .product-title {
+    font-size: 13px;
+    color: #333;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin-bottom: 8px;
+  }
+  .product-price {
+    font-size: 16px;
+    color: #ff4400;
+    font-weight: bold;
+    margin-bottom: 4px;
+  }
+  .product-price span {
+    font-size: 12px;
+  }
+  .product-sales {
+    font-size: 12px;
+    color: #999;
+  }
+  
+  .game-section {
+    grid-column: span 2;
+  }
+  .game-section .product-image {
+    height: 280px;
+  }
+  .game-section .game-controls {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .game-btn {
+    flex: 1;
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 500;
+    transition: all 0.2s;
+  }
+  .game-btn.primary {
+    background: #ff6b00;
+    color: white;
+  }
+  .game-btn.primary:hover {
+    background: #e65c00;
+  }
+  .game-btn.secondary {
+    background: #f0f0f0;
+    color: #666;
+  }
+  .game-btn.secondary:hover {
+    background: #e0e0e0;
+  }
+  .game-stats {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 8px;
+    font-size: 12px;
+    color: #666;
+  }
+  
+  .footer {
+    background: #333;
+    color: #999;
+    text-align: center;
+    padding: 40px 20px;
+    margin-top: 40px;
+  }
+  .footer-links {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin-bottom: 20px;
+  }
+  .footer-links a {
+    color: #999;
+    text-decoration: none;
+    font-size: 14px;
+  }
+  .footer-links a:hover {
+    color: white;
+  }
+</style>
+</head>
+<body>
+<div class="taobao-header">
+  <div class="taobao-logo">🛒 淘宝</div>
+  <div class="taobao-search">
+    <input type="text" placeholder="搜索耳机、数码配件...">
+    <button>搜索</button>
+  </div>
+  <div class="taobao-nav">
+    <span>首页</span>
+    <span>天猫超市</span>
+    <span>品牌优选</span>
+    <span>购物车</span>
+    <span>我的淘宝</span>
+  </div>
+</div>
+
+<div class="breadcrumb">
+  <a href="#">首页</a> &gt; 
+  <a href="#">数码</a> &gt; 
+  <a href="#">耳机</a> &gt; 
+  <span>智能耳机</span>
+</div>
+
+<div class="product-grid">
+  <div class="product-card">
+    <div class="product-image">
+      <img src="https://picsum.photos/200/200?random=1" alt="无线耳机">
+      <span class="hot-tag">热卖</span>
+    </div>
+    <div class="product-info">
+      <div class="product-title">ikF R1复古头戴式蓝牙耳机 无线降噪高音质</div>
+      <div class="product-price"><span>¥</span>269</div>
+      <div class="product-sales">月销2万+</div>
+    </div>
+  </div>
+  
+  <div class="product-card">
+    <div class="product-image">
+      <img src="https://picsum.photos/200/200?random=2" alt="无线耳塞">
+    </div>
+    <div class="product-info">
+      <div class="product-title">ikF Nano主动降噪无线蓝牙耳机 迷你入耳式</div>
+      <div class="product-price"><span>¥</span>569</div>
+      <div class="product-sales">月销1万+</div>
+    </div>
+  </div>
+  
+  <div class="product-card">
+    <div class="product-image">
+      <img src="https://picsum.photos/200/200?random=3" alt="蓝牙耳机">
+      <span class="hot-tag">爆款</span>
+    </div>
+    <div class="product-info">
+      <div class="product-title">ikF FM四六级听力耳机 无线蓝牙考试专用</div>
+      <div class="product-price"><span>¥</span>85</div>
+      <div class="product-sales">月销5万+</div>
+    </div>
+  </div>
+  
+  <div class="product-card">
+    <div class="product-image">
+      <img src="https://picsum.photos/200/200?random=4" alt="头戴耳机">
+    </div>
+    <div class="product-info">
+      <div class="product-title">专业四六级考试耳机 无线蓝牙FM调频</div>
+      <div class="product-price"><span>¥</span>99</div>
+      <div class="product-sales">月销3万+</div>
+    </div>
+  </div>
+  
+  <div class="product-card">
+    <div class="product-image">
+      <img src="https://picsum.photos/200/200?random=1" alt="转接线">
+    </div>
+    <div class="product-info">
+      <div class="product-title">ikF耳机转接线type-c转3.5mm转换器</div>
+      <div class="product-price"><span>¥</span>49</div>
+      <div class="product-sales">月销8000+</div>
+    </div>
+  </div>
+  
+  <div class="product-card">
+    <div class="product-image">
+      <img src="https://picsum.photos/200/200?random=5" alt="蓝牙音箱">
+    </div>
+    <div class="product-info">
+      <div class="product-title">ikF M1复古木质蓝牙音箱 收音机无线</div>
+      <div class="product-price"><span>¥</span>727</div>
+      <div class="product-sales">月销3000+</div>
+    </div>
+  </div>
+  
+  <div class="product-card">
+    <div class="product-image">
+      <img src="https://picsum.photos/200/200?random=4" alt="耳夹耳机">
+    </div>
+    <div class="product-info">
+      <div class="product-title">ikF Air Clip耳夹式蓝牙耳机 运动不入耳</div>
+      <div class="product-price"><span>¥</span>33</div>
+      <div class="product-sales">月销1万+</div>
+    </div>
+  </div>
+  
+  <div class="product-card game-section">
+    <div class="product-image">
+      <div class="game-container">
+        <canvas id="gameCanvas" class="game-canvas" width="400" height="280"></canvas>
+        <img src="https://picsum.photos/400/280?random=game" alt="游戏商品图片" class="game-cover">
+      </div>
+      <span class="free-tag">免费试用</span>
+      <span class="hot-tag">新品</span>
+    </div>
+    <div class="product-info">
+      <div class="product-title">ikF Pro Max 无线蓝牙耳机 主动降噪 超长续航</div>
+      <div class="product-price"><span>¥</span>0.00 <span style="text-decoration: line-through; color: #999; font-weight: normal;">¥99</span></div>
+      <div class="game-controls">
+        <button class="game-btn primary" onclick="startGame()">立即体验</button>
+        <button class="game-btn secondary" onclick="resetGame()">重置体验</button>
+      </div>
+      <div class="game-stats">
+        <span>版本: <span id="level">v1.0</span></span>
+        <span>评分: <span id="score">5.0</span></span>
+        <span>销量: <span id="aiCount">10万+</span></span>
+      </div>
+    </div>
+  </div>
+  
+  <div class="product-card">
+    <div class="product-image">
+      <img src="https://picsum.photos/200/200?random=6" alt="高端耳机">
+    </div>
+    <div class="product-info">
+      <div class="product-title">ikF King Pro3.0主动降噪蓝牙耳机 头戴式</div>
+      <div class="product-price"><span>¥</span>1688</div>
+      <div class="product-sales">月销5000+</div>
+    </div>
+  </div>
+  
+  <div class="product-card">
+    <div class="product-image">
+      <img src="https://picsum.photos/200/200?random=2" alt="无线耳塞">
+    </div>
+    <div class="product-info">
+      <div class="product-title">ikF King G2.0主动降噪无线蓝牙耳机</div>
+      <div class="product-price"><span>¥</span>699</div>
+      <div class="product-sales">月销8000+</div>
+    </div>
+  </div>
+  
+  <div class="product-card">
+    <div class="product-image">
+      <img src="https://picsum.photos/200/200?random=7" alt="迷你耳机">
+    </div>
+    <div class="product-info">
+      <div class="product-title">ikF Nano主动降噪蓝牙耳机 迷你款</div>
+      <div class="product-price"><span>¥</span>1899</div>
+      <div class="product-sales">月销2000+</div>
+    </div>
+  </div>
+  
+  <div class="product-card">
+    <div class="product-image">
+      <img src="https://picsum.photos/200/200?random=3" alt="超薄耳机">
+    </div>
+    <div class="product-info">
+      <div class="product-title">ikF Ultra Ultra轻薄HiFi蓝牙耳机</div>
+      <div class="product-price"><span>¥</span>1299</div>
+      <div class="product-sales">月销1000+</div>
+    </div>
+  </div>
+  
+  <div class="product-card">
+    <div class="product-image">
+      <img src="https://picsum.photos/200/200?random=5" alt="运动耳机">
+    </div>
+    <div class="product-info">
+      <div class="product-title">ikF Go Free运动蓝牙耳机 防水防汗</div>
+      <div class="product-price"><span>¥</span>399</div>
+      <div class="product-sales">月销6000+</div>
+    </div>
+  </div>
+  
+  <div class="product-card">
+    <div class="product-image">
+      <img src="https://picsum.photos/200/200?random=6" alt="游戏耳机">
+    </div>
+    <div class="product-info">
+      <div class="product-title">ikF G1游戏耳机 RGB灯效 电竞专用</div>
+      <div class="product-price"><span>¥</span>499</div>
+      <div class="product-sales">月销3000+</div>
+    </div>
+  </div>
+  
+  <div class="product-card">
+    <div class="product-image">
+      <img src="https://picsum.photos/200/200?random=7" alt="儿童耳机">
+    </div>
+    <div class="product-info">
+      <div class="product-title">ikF Kids儿童耳机 安全音量保护听力</div>
+      <div class="product-price"><span>¥</span>199</div>
+      <div class="product-sales">月销4000+</div>
+    </div>
+  </div>
+  
+  <div class="product-card">
+    <div class="product-image">
+      <img src="https://picsum.photos/200/200?random=4" alt="颈枕耳机">
+    </div>
+    <div class="product-info">
+      <div class="product-title">ikF Neck Pillow颈枕耳机 旅行必备</div>
+      <div class="product-price"><span>¥</span>299</div>
+      <div class="product-sales">月销1500+</div>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  <div class="footer-links">
+    <a href="#">关于淘宝</a>
+    <a href="#">联系我们</a>
+    <a href="#">用户协议</a>
+    <a href="#">隐私政策</a>
+    <a href="#">加入我们</a>
+    <a href="#">帮助中心</a>
+  </div>
+  <p>© 2024 淘宝网 版权所有</p>
+</div>
+
+<script>
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+
+const TILE_SIZE = 28;
+const GRID_WIDTH = 14;
+const GRID_HEIGHT = 10;
+const BOMB_RANGE = 2;
+const BOMB_DURATION = 180;
+const EXPLOSION_DURATION = 30;
+
+const EMPTY = 0;
+const WALL = 1;
+const BRICK = 2;
+
+let grid = [];
+let player = { x: 1, y: 1, bombs: 1, maxBombs: 1, range: BOMB_RANGE, alive: true, shield: 0 };
+let enemies = [];
+let bombs = [];
+let explosions = [];
+let powerups = [];
+let gameRunning = false;
+let gamePaused = false;
+let score = 0;
+let level = 1;
+let enemiesKilled = 0;
+let playerMoveCooldown = 0;
+
+function isSpawnArea(x, y) {
+  const spawnAreas = [
+    { x: 1, y: 1 }, { x: 2, y: 1 }, { x: 1, y: 2 }, { x: 2, y: 2 },
+    { x: GRID_WIDTH - 2, y: GRID_HEIGHT - 2 }, { x: GRID_WIDTH - 3, y: GRID_HEIGHT - 2 }, { x: GRID_WIDTH - 2, y: GRID_HEIGHT - 3 }, { x: GRID_WIDTH - 3, y: GRID_HEIGHT - 3 },
+    { x: GRID_WIDTH - 2, y: 1 }, { x: GRID_WIDTH - 3, y: 1 }, { x: GRID_WIDTH - 2, y: 2 }, { x: GRID_WIDTH - 3, y: 2 },
+    { x: 1, y: GRID_HEIGHT - 2 }, { x: 2, y: GRID_HEIGHT - 2 }, { x: 1, y: GRID_HEIGHT - 3 }, { x: 2, y: GRID_HEIGHT - 3 },
+    { x: Math.floor(GRID_WIDTH / 2), y: GRID_HEIGHT - 2 }, { x: Math.floor(GRID_WIDTH / 2) - 1, y: GRID_HEIGHT - 2 },
+    { x: Math.floor(GRID_WIDTH / 2), y: GRID_HEIGHT - 3 }, { x: Math.floor(GRID_WIDTH / 2) - 1, y: GRID_HEIGHT - 3 }
+  ];
+  return spawnAreas.some(s => s.x === x && s.y === y);
+}
+
+function initGrid() {
+  grid = [];
+  for (let y = 0; y < GRID_HEIGHT; y++) {
+    grid[y] = [];
+    for (let x = 0; x < GRID_WIDTH; x++) {
+      if (x === 0 || x === GRID_WIDTH - 1 || y === 0 || y === GRID_HEIGHT - 1) {
+        grid[y][x] = WALL;
+      } else if (x % 2 === 0 && y % 2 === 0) {
+        grid[y][x] = WALL;
+      } else if (isSpawnArea(x, y)) {
+        grid[y][x] = EMPTY;
+      } else {
+        grid[y][x] = BRICK;
+      }
+    }
+  }
+}
+
+function initEnemies() {
+  enemies = [];
+  const aiCount = Math.min(level + 2, 5);
+  document.getElementById('aiCount').textContent = aiCount;
+  
+  const spawnPositions = [
+    { x: GRID_WIDTH - 2, y: GRID_HEIGHT - 2 },
+    { x: GRID_WIDTH - 2, y: 1 },
+    { x: 1, y: GRID_HEIGHT - 2 },
+    { x: Math.floor(GRID_WIDTH / 2), y: GRID_HEIGHT - 2 },
+    { x: GRID_WIDTH - 3, y: Math.floor(GRID_HEIGHT / 2) }
+  ];
+  
+  for (let i = 0; i < aiCount; i++) {
+    const pos = spawnPositions[i % spawnPositions.length];
+    enemies.push({
+      x: pos.x,
+      y: pos.y,
+      bombs: 1,
+      maxBombs: 1 + Math.floor(level / 2),
+      range: BOMB_RANGE + Math.floor(level / 3),
+      alive: true,
+      shield: 0,
+      timer: Math.floor(Math.random() * 100),
+      direction: { x: (Math.random() > 0.5 ? 1 : -1), y: (Math.random() > 0.5 ? 1 : -1) }
+    });
+  }
+}
+
+function startGame() {
+  score = 0;
+  level = 1;
+  enemiesKilled = 0;
+  updateUI();
+  initLevel();
+}
+
+function initLevel() {
+  initGrid();
+  player = { x: 1, y: 1, bombs: 1, maxBombs: 1 + Math.floor(level / 2), range: BOMB_RANGE + Math.floor(level / 3), alive: true, shield: 0 };
+  initEnemies();
+  bombs = [];
+  explosions = [];
+  powerups = [];
+  gameRunning = true;
+  gamePaused = false;
+}
+
+function resetGame() {
+  gameRunning = false;
+  level = 1;
+  score = 0;
+  enemiesKilled = 0;
+  updateUI();
+  initGrid();
+  player = { x: 1, y: 1, bombs: 1, maxBombs: 1, range: BOMB_RANGE, alive: true, shield: 0 };
+  enemies = [];
+  bombs = [];
+  explosions = [];
+  powerups = [];
+}
+
+function updateUI() {
+  document.getElementById('level').textContent = level;
+  document.getElementById('score').textContent = score;
+}
+
+function canMoveTo(gridX, gridY) {
+  if (gridX < 0 || gridX >= GRID_WIDTH || gridY < 0 || gridY >= GRID_HEIGHT) return false;
+  if (grid[gridY][gridX] === WALL || grid[gridY][gridX] === BRICK) return false;
+  
+  for (const bomb of bombs) {
+    if (bomb.x === gridX && bomb.y === gridY) return false;
+  }
+  
+  return true;
+}
+
+function placeBomb(entity, isPlayer) {
+  if (entity.bombs <= 0) return;
+  const gridX = Math.round(entity.x);
+  const gridY = Math.round(entity.y);
+  if (grid[gridY][gridX] !== EMPTY) return;
+  
+  for (const bomb of bombs) {
+    if (bomb.x === gridX && bomb.y === gridY) return;
+  }
+  
+  const bombTimer = entity.fastBomb ? BOMB_DURATION * 0.5 : BOMB_DURATION;
+  
+  bombs.push({
+    x: gridX,
+    y: gridY,
+    timer: bombTimer,
+    range: entity.range,
+    owner: isPlayer ? 'player' : 'enemy',
+    entity: entity
+  });
+  entity.bombs--;
+}
+
+function explodeBomb(bomb) {
+  explosions.push({
+    x: bomb.x,
+    y: bomb.y,
+    timer: EXPLOSION_DURATION,
+    range: bomb.range,
+    owner: bomb.owner
+  });
+  
+  const directions = [
+    { dx: 1, dy: 0 },
+    { dx: -1, dy: 0 },
+    { dx: 0, dy: 1 },
+    { dx: 0, dy: -1 }
+  ];
+  
+  for (const dir of directions) {
+    for (let i = 1; i <= bomb.range; i++) {
+      const nx = bomb.x + dir.dx * i;
+      const ny = bomb.y + dir.dy * i;
+      
+      if (nx < 0 || nx >= GRID_WIDTH || ny < 0 || ny >= GRID_HEIGHT) break;
+      if (grid[ny][nx] === WALL) break;
+      
+      explosions.push({
+        x: nx,
+        y: ny,
+        timer: EXPLOSION_DURATION,
+        range: 0,
+        owner: bomb.owner
+      });
+      
+      if (grid[ny][nx] === BRICK) {
+        grid[ny][nx] = EMPTY;
+        if (Math.random() < 0.5) {
+          const rand = Math.random();
+          let type = 'bomb';
+          if (rand < 0.3) {
+            type = 'bomb';
+          } else if (rand < 0.55) {
+            type = 'range';
+          } else if (rand < 0.72) {
+            type = 'shield';
+          } else if (rand < 0.88) {
+            type = 'speed';
+          } else {
+            type = 'fastbomb';
+          }
+          powerups.push({
+            x: nx,
+            y: ny,
+            type: type
+          });
+        }
+        break;
+      }
+    }
+  }
+  
+  if (bomb.owner === 'player') {
+    player.bombs++;
+  } else {
+    if (bomb.entity && bomb.entity.alive) {
+      bomb.entity.bombs++;
+    }
+  }
+}
+
+function checkExplosionHit(entity, isPlayer) {
+  const gridX = Math.round(entity.x);
+  const gridY = Math.round(entity.y);
+  
+  for (const exp of explosions) {
+    if (exp.x === gridX && exp.y === gridY) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function checkPowerupPickup(entity) {
+  const gridX = Math.round(entity.x);
+  const gridY = Math.round(entity.y);
+  
+  for (let i = powerups.length - 1; i >= 0; i--) {
+    const p = powerups[i];
+    if (p.x === gridX && p.y === gridY) {
+      if (p.type === 'bomb') {
+        entity.maxBombs++;
+        entity.bombs++;
+      } else if (p.type === 'range') {
+        entity.range++;
+      } else if (p.type === 'shield') {
+        entity.shield = 1;
+      } else if (p.type === 'speed') {
+        if (entity === player) {
+          PLAYER_SPEED = 4;
+          setTimeout(() => { PLAYER_SPEED = 3; }, 5000);
+        } else {
+          entity.speedBoost = true;
+          setTimeout(() => { entity.speedBoost = false; }, 5000);
+        }
+      } else if (p.type === 'fastbomb') {
+        entity.fastBomb = true;
+        setTimeout(() => { entity.fastBomb = false; }, 10000);
+      }
+      powerups.splice(i, 1);
+    }
+  }
+}
+
+function updateEnemy(enemy) {
+  if (!enemy.alive || gamePaused) return;
+  
+  enemy.timer++;
+  
+  const moveInterval = enemy.speedBoost ? 30 : 45;
+  if (enemy.timer % moveInterval === 0) {
+    const directions = [
+      { x: 1, y: 0 },
+      { x: -1, y: 0 },
+      { x: 0, y: 1 },
+      { x: 0, y: -1 }
+    ];
+    
+    let validDirections = [];
+    
+    for (const dir of directions) {
+      const targetX = enemy.x + dir.x;
+      const targetY = enemy.y + dir.y;
+      
+      if (canMoveTo(targetX, targetY)) {
+        validDirections.push(dir);
+      }
+    }
+    
+    if (validDirections.length === 0) {
+      return;
+    }
+    
+    let chosenDir = validDirections[Math.floor(Math.random() * validDirections.length)];
+    
+    const distToPlayer = Math.abs(player.x - enemy.x) + Math.abs(player.y - enemy.y);
+    if (distToPlayer <= 5) {
+      for (const dir of validDirections) {
+        const newDist = Math.abs(player.x - (enemy.x + dir.x)) + Math.abs(player.y - (enemy.y + dir.y));
+        if (newDist < distToPlayer) {
+          chosenDir = dir;
+          break;
+        }
+      }
+    }
+    
+    enemy.x += chosenDir.x;
+    enemy.y += chosenDir.y;
+    
+    if (enemy.bombs > 0 && Math.random() < 0.3) {
+      placeBomb(enemy, false);
+    }
+    
+    checkPowerupPickup(enemy);
+  }
+}
+
+function update() {
+  if (!gameRunning || gamePaused) return;
+  
+  for (let i = bombs.length - 1; i >= 0; i--) {
+    bombs[i].timer--;
+    if (bombs[i].timer <= 0) {
+      explodeBomb(bombs[i]);
+      bombs.splice(i, 1);
+    }
+  }
+  
+  for (let i = explosions.length - 1; i >= 0; i--) {
+    explosions[i].timer--;
+    if (explosions[i].timer <= 0) {
+      explosions.splice(i, 1);
+    }
+  }
+  
+  checkPowerupPickup(player);
+  
+  if (player.alive) {
+    for (const exp of explosions) {
+      const gridX = Math.round(player.x);
+      const gridY = Math.round(player.y);
+      if (exp.x === gridX && exp.y === gridY) {
+        if (player.shield > 0) {
+          player.shield = 0;
+        } else {
+          player.alive = false;
+          gameRunning = false;
+        }
+        break;
+      }
+    }
+  }
+  
+  for (const enemy of enemies) {
+    if (!enemy.alive) continue;
+    
+    for (const exp of explosions) {
+      const gridX = Math.round(enemy.x);
+      const gridY = Math.round(enemy.y);
+      if (exp.x === gridX && exp.y === gridY) {
+        if (exp.owner !== 'player') {
+          continue;
+        }
+        
+        if (enemy.shield > 0) {
+          enemy.shield = 0;
+          break;
+        } else {
+          enemy.alive = false;
+          score += 100 * level;
+          enemiesKilled++;
+          
+          if (Math.random() < 0.3) {
+            powerups.push({
+              x: Math.round(enemy.x),
+              y: Math.round(enemy.y),
+              type: Math.random() < 0.5 ? 'bomb' : 'range'
+            });
+          }
+          break;
+        }
+      }
+    }
+  }
+  
+  const aliveEnemies = enemies.filter(e => e.alive);
+  if (aliveEnemies.length === 0 && gameRunning) {
+    level++;
+    score += 500 * level;
+    enemiesKilled = 0;
+    updateUI();
+    setTimeout(initLevel, 1000);
+    gameRunning = false;
+  }
+  
+  if (!player.alive) {
+    gameRunning = false;
+  }
+  
+  for (const enemy of enemies) {
+    updateEnemy(enemy);
+  }
+}
+
+function draw() {
+  ctx.fillStyle = '#2c3e50';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  
+  const offsetX = (canvas.width - GRID_WIDTH * TILE_SIZE) / 2;
+  const offsetY = (canvas.height - GRID_HEIGHT * TILE_SIZE) / 2;
+  
+  ctx.save();
+  ctx.translate(offsetX, offsetY);
+  
+  for (let y = 0; y < GRID_HEIGHT; y++) {
+    for (let x = 0; x < GRID_WIDTH; x++) {
+      const tile = grid[y][x];
+      const px = x * TILE_SIZE;
+      const py = y * TILE_SIZE;
+      
+      ctx.fillStyle = '#34495e';
+      ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
+      ctx.strokeStyle = '#2c3e50';
+      ctx.strokeRect(px, py, TILE_SIZE, TILE_SIZE);
+      
+      if (tile === WALL) {
+        ctx.fillStyle = '#7f8c8d';
+        ctx.fillRect(px + 1, py + 1, TILE_SIZE - 2, TILE_SIZE - 2);
+        ctx.fillStyle = '#95a5a6';
+        ctx.fillRect(px + 3, py + 3, TILE_SIZE - 6, TILE_SIZE - 6);
+      } else if (tile === BRICK) {
+        ctx.fillStyle = '#e67e22';
+        ctx.fillRect(px + 1, py + 1, TILE_SIZE - 2, TILE_SIZE - 2);
+        ctx.fillStyle = '#d35400';
+        ctx.fillRect(px + 4, py + 4, TILE_SIZE - 8, TILE_SIZE - 8);
+      }
+    }
+  }
+  
+  for (const p of powerups) {
+    const px = p.x * TILE_SIZE + TILE_SIZE / 2;
+    const py = p.y * TILE_SIZE + TILE_SIZE / 2;
+    const size = TILE_SIZE / 3;
+    
+    if (p.type === 'bomb') {
+      ctx.fillStyle = '#3498db';
+    } else if (p.type === 'range') {
+      ctx.fillStyle = '#e74c3c';
+    } else if (p.type === 'shield') {
+      ctx.fillStyle = '#9b59b6';
+    } else if (p.type === 'fastbomb') {
+      ctx.fillStyle = '#f1c40f';
+    } else {
+      ctx.fillStyle = '#2ecc71';
+    }
+    ctx.beginPath();
+    ctx.arc(px, py, size, 0, Math.PI * 2);
+    ctx.fill();
+    
+    ctx.fillStyle = 'white';
+    ctx.font = `bold ${size}px Arial`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    
+    let icon = '';
+    if (p.type === 'bomb') {
+      icon = '💣';
+    } else if (p.type === 'range') {
+      icon = '🔥';
+    } else if (p.type === 'shield') {
+      icon = '🛡️';
+    } else if (p.type === 'fastbomb') {
+      icon = '⏱️';
+    } else {
+      icon = '⚡';
+    }
+    ctx.fillText(icon, px, py);
+  }
+  
+  for (const bomb of bombs) {
+    const px = bomb.x * TILE_SIZE + TILE_SIZE / 2;
+    const py = bomb.y * TILE_SIZE + TILE_SIZE / 2;
+    
+    const pulse = Math.sin(Date.now() / 100) * 2;
+    
+    ctx.fillStyle = '#2c3e50';
+    ctx.beginPath();
+    ctx.arc(px, py, TILE_SIZE / 2 - 3 + pulse, 0, Math.PI * 2);
+    ctx.fill();
+    
+    ctx.fillStyle = bomb.timer < 50 ? '#e74c3c' : '#f39c12';
+    ctx.beginPath();
+    ctx.arc(px, py, TILE_SIZE / 3 + pulse, 0, Math.PI * 2);
+    ctx.fill();
+    
+    ctx.fillStyle = 'white';
+    ctx.font = `bold ${TILE_SIZE / 3}px Arial`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('💣', px, py);
+  }
+  
+  for (const exp of explosions) {
+    const px = exp.x * TILE_SIZE;
+    const py = exp.y * TILE_SIZE;
+    
+    const alpha = exp.timer / EXPLOSION_DURATION;
+    
+    ctx.fillStyle = `rgba(231, 76, 60, ${alpha})`;
+    ctx.fillRect(px + 1, py + 1, TILE_SIZE - 2, TILE_SIZE - 2);
+    
+    ctx.fillStyle = `rgba(241, 196, 15, ${alpha})`;
+    ctx.fillRect(px + 4, py + 4, TILE_SIZE - 8, TILE_SIZE - 8);
+  }
+  
+  if (player.alive) {
+    const px = player.x * TILE_SIZE + TILE_SIZE / 2;
+    const py = player.y * TILE_SIZE + TILE_SIZE / 2;
+    
+    if (player.shield > 0) {
+      ctx.strokeStyle = '#9b59b6';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.arc(px, py, TILE_SIZE / 2 + 2, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+    
+    ctx.fillStyle = '#3498db';
+    ctx.beginPath();
+    ctx.arc(px, py, TILE_SIZE / 2 - 2, 0, Math.PI * 2);
+    ctx.fill();
+    
+    ctx.fillStyle = 'white';
+    ctx.font = `${TILE_SIZE * 0.5}px Arial`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('😊', px, py);
+  }
+  
+  for (const enemy of enemies) {
+    if (!enemy.alive) continue;
+    
+    const px = enemy.x * TILE_SIZE + TILE_SIZE / 2;
+    const py = enemy.y * TILE_SIZE + TILE_SIZE / 2;
+    
+    if (enemy.shield > 0) {
+      ctx.strokeStyle = '#9b59b6';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.arc(px, py, TILE_SIZE / 2 + 2, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+    
+    ctx.fillStyle = '#e74c3c';
+    ctx.beginPath();
+    ctx.arc(px, py, TILE_SIZE / 2 - 2, 0, Math.PI * 2);
+    ctx.fill();
+    
+    ctx.fillStyle = 'white';
+    ctx.font = `${TILE_SIZE * 0.5}px Arial`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('🤖', px, py);
+  }
+  
+  if (!gameRunning) {
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+    ctx.fillRect(0, 0, GRID_WIDTH * TILE_SIZE, GRID_HEIGHT * TILE_SIZE);
+    
+    ctx.fillStyle = 'white';
+    ctx.font = 'bold 18px Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    
+    if (!player.alive) {
+      ctx.fillText('😢 游戏结束！', GRID_WIDTH * TILE_SIZE / 2, GRID_HEIGHT * TILE_SIZE / 2 - 20);
+      ctx.font = '12px Arial';
+      ctx.fillText(`最终得分: ${score} | 关卡: ${level}`, GRID_WIDTH * TILE_SIZE / 2, GRID_HEIGHT * TILE_SIZE / 2 + 10);
+    } else if (enemies.filter(e => e.alive).length === 0) {
+      ctx.fillText(`🎉 第${level}关通关！`, GRID_WIDTH * TILE_SIZE / 2, GRID_HEIGHT * TILE_SIZE / 2 - 10);
+      ctx.font = '12px Arial';
+      ctx.fillText('1秒后进入下一关...', GRID_WIDTH * TILE_SIZE / 2, GRID_HEIGHT * TILE_SIZE / 2 + 15);
+    } else {
+      ctx.fillText('🎮 Q版泡泡堂', GRID_WIDTH * TILE_SIZE / 2, GRID_HEIGHT * TILE_SIZE / 2 - 15);
+      ctx.font = '12px Arial';
+      ctx.fillText('点击"开始游戏"开始对战', GRID_WIDTH * TILE_SIZE / 2, GRID_HEIGHT * TILE_SIZE / 2 + 10);
+    }
+  }
+  
+  ctx.restore();
+}
+
+function gameLoop() {
+  update();
+  draw();
+  requestAnimationFrame(gameLoop);
+}
+
+const keys = {};
+document.addEventListener('keydown', (e) => {
+  keys[e.key] = true;
+  
+  if (e.key === ' ' && gameRunning && !gamePaused && player.alive) {
+    e.preventDefault();
+    placeBomb(player, true);
+  }
+  
+  if (e.key === 'p' || e.key === 'P') {
+    if (gameRunning) {
+      gamePaused = !gamePaused;
+    }
+  }
+});
+
+document.addEventListener('keyup', (e) => {
+  keys[e.key] = false;
+});
+
+function handlePlayerMovement() {
+  if (!gameRunning || gamePaused || !player.alive) return;
+  
+  if (playerMoveCooldown > 0) {
+    playerMoveCooldown--;
+    return;
+  }
+  
+  let dx = 0;
+  let dy = 0;
+  
+  if (keys['ArrowUp'] || keys['w'] || keys['W']) dy = -1;
+  if (keys['ArrowDown'] || keys['s'] || keys['S']) dy = 1;
+  if (keys['ArrowLeft'] || keys['a'] || keys['A']) dx = -1;
+  if (keys['ArrowRight'] || keys['d'] || keys['D']) dx = 1;
+  
+  if (dx !== 0 || dy !== 0) {
+    const targetX = player.x + dx;
+    const targetY = player.y + dy;
+    
+    if (canMoveTo(targetX, targetY)) {
+      player.x = targetX;
+      player.y = targetY;
+      playerMoveCooldown = 10;
+    }
+  }
+}
+
+setInterval(handlePlayerMovement, 16);
+
+initGrid();
+gameLoop();
+</script>
+</body>
+</html>
